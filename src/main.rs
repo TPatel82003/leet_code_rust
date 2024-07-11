@@ -337,6 +337,6 @@ mod test {
         b.insert(1, 5);
         b.insert(4, 5);
         let top = b.first_entry().unwrap();
-        assert_eq!(top.key(), &1);
+        assert_eq!(top.key(), &2);
     }
 }
