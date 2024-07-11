@@ -1,10 +1,9 @@
 struct Solution;
-use std::borrow::{Borrow, BorrowMut};
+
 use std::cmp::{max, min};
 use std::collections::{BTreeMap, HashMap};
-use std::hash::Hash;
+
 use std::i32::{MAX, MIN};
-use std::intrinsics::log2f32;
 use std::vec;
 pub struct CallData {
     id: i32,
@@ -97,7 +96,7 @@ impl Solution {
             return if nums[0] == 1 { 0 } else { 1 };
         }
         let mut ans: i32 = 0;
-        let mut folded: Vec<i32> = Solution::folder_vector(nums);
+        let folded: Vec<i32> = Solution::folder_vector(nums);
         ans = folded.iter().fold(0, |acc, x| acc + (x == &0) as i32) * 2;
         ans -= (*folded.iter().last().unwrap() == 0) as i32;
         ans
@@ -258,7 +257,7 @@ impl Solution {
                     }
                 }
                 _ => {
-                    while let Some((min_sells, min_sells_freq)) = buys_freq.last_key_value() {
+                    while let Some((min_sells, min_sells_freq)) = buys_freq.clone().last_key_value() {
                         if *min_sells < price || amount <= 0 {
                             break;
                         }
