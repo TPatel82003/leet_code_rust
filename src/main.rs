@@ -1,6 +1,6 @@
 struct Solution;
-
-use std::cmp::{max, min};
+use rstest::rstest;
+use std::cmp::{max, min, Ordering};
 use std::collections::{BTreeMap, HashMap};
 
 use std::i32::{MAX, MIN};
@@ -257,7 +257,8 @@ impl Solution {
                     }
                 }
                 _ => {
-                    while let Some((min_sells, min_sells_freq)) = buys_freq.clone().last_key_value() {
+                    while let Some((min_sells, min_sells_freq)) = buys_freq.clone().last_key_value()
+                    {
                         if *min_sells < price || amount <= 0 {
                             break;
                         }
@@ -294,6 +295,46 @@ impl Solution {
             let bin_i = format!("{:0>width$}", format!("{:b}", i), width = n as usize);
             if Solution::get_verify_binary(bin_i.clone()) {
                 ans.push(bin_i);
+            }
+        }
+        ans
+    }
+    pub fn survived_robots_healths(
+        positions: Vec<i32>,
+        mut healths: Vec<i32>,
+        directions: String,
+    ) -> Vec<i32> {
+        let n = positions.len();
+        let mut ans: Vec<i32> = vec![];
+        let mut index: Vec<usize> = (0..positions.len()).collect();
+        let mut stack: Vec<usize> = vec![];
+        let direction_vec = directions.chars().collect::<Vec<char>>();
+        index.sort_by(|a, b| positions[*a].cmp(&positions[*b]));
+        for current_index in index {
+            if direction_vec[current_index] == 'R' {
+                stack.push(current_index);
+            } else {
+                while !stack.is_empty() && healths[current_index] > 0 {
+                    let top_index = *stack.last().unwrap_or(&0);
+                    stack.pop();
+                    let order = healths[top_index].cmp(&healths[current_index]);
+                    healths[top_index] = match order {
+                        Ordering::Equal | Ordering::Less => 0,
+                        Ordering::Greater => {
+                            stack.push(top_index);
+                            healths[top_index] - 1
+                        }
+                    };
+                    healths[current_index] = match order {
+                        Ordering::Equal | Ordering::Greater => 0,
+                        Ordering::Less => healths[current_index] - 1,
+                    };
+                }
+            }
+        }
+        for i in 0..n {
+            if healths[i] > 0 {
+                ans.push(healths[i]);
             }
         }
         ans
@@ -338,5 +379,20 @@ mod test {
         b.insert(4, 5);
         let top = b.first_entry().unwrap();
         assert_eq!(top.key(), &1);
+    }
+    #[rstest]
+    #[case(vec![1,2,5,6] , vec![10,10,11,11] , "RLRL" , vec![])]
+    #[case(vec![3,5,2,6] , vec![10,10,15,12] , "RLRL" , vec![14])]
+    #[case(vec![5,4,3,2,1] , vec![2,17,9,15,10] , "RRRRR" , vec![2,17,9,15,10])]
+    fn test_survived_robots_healths(
+        #[case] positions: Vec<i32>,
+        #[case] healths: Vec<i32>,
+        #[case] directions: String,
+        #[case] expected: Vec<i32>,
+    ) {
+        assert_eq!(
+            Solution::survived_robots_healths(positions, healths, directions),
+            expected
+        );
     }
 }
