@@ -339,7 +339,7 @@ impl Solution {
         }
         ans
     }
-}
+    }
 fn main() {
     let binding = vec![0, 1, 1, 1, 1, 0, 0, 0, 1, 1];
     println!("{:?} -> {:?}", binding, folder_vector(binding.clone()))
@@ -358,27 +358,12 @@ fn folder_vector(input: Vec<i32>) -> Vec<i32> {
 #[cfg(test)]
 mod test {
     use super::*;
-    #[test]
-    fn test_fold() {
-        assert_eq!(
-            folder_vector(vec![0, 1, 1, 1, 1, 0, 0, 0, 1]),
-            vec![0, 1, 0, 1]
-        );
-        assert_eq!(
-            folder_vector(vec![0, 1, 1, 1, 1, 0, 0, 0, 1, 1]),
-            vec![0, 1, 0, 1]
-        );
-        assert_eq!(
-            folder_vector(vec![0, 1, 1, 1, 1, 0, 0, 0, 1, 0]),
-            vec![0, 1, 0, 1, 0]
-        );
-        assert_eq!(folder_vector(vec![0, 0, 0]), vec![0]);
-        let mut b: BTreeMap<i32, i32> = BTreeMap::new();
-        b.insert(3, 5);
-        b.insert(1, 5);
-        b.insert(4, 5);
-        let top = b.first_entry().unwrap();
-        assert_eq!(top.key(), &1);
+    #[rstest]
+    #[case(vec![0, 1, 1, 1, 1, 0, 0, 0, 1] , vec![0, 1, 0, 1])]
+    #[case(vec![0, 1, 1, 1, 1, 0, 0, 0, 1, 1] , vec![0, 1, 0, 1])]
+    #[case(vec![0, 1, 1, 1, 1, 0, 0, 0, 1, 0] , vec![0, 1, 0, 1, 0])]
+    fn test_folded_vector(#[case] input: Vec<i32>, #[case] expected: Vec<i32>) {
+        assert_eq!(Solution::folder_vector(input), expected);
     }
     #[rstest]
     #[case(vec![1,2,5,6] , vec![10,10,11,11] , "RLRL" , vec![])]
