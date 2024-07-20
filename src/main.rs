@@ -339,6 +339,19 @@ impl Solution {
         }
         ans
     }
+    pub fn restore_matrix(mut row_sum: Vec<i32>, mut col_sum: Vec<i32>) -> Vec<Vec<i32>> {
+        let n = row_sum.len();
+        let m = col_sum.len();
+        let mut ans : Vec<Vec<i32>> = vec![vec![0;m];n];
+        for i in 0..n{
+            for j in 0..m{
+                ans[i][j] = min(row_sum[i] , col_sum[j]);
+                row_sum[i] -= ans[i][j];
+                col_sum[j] -= ans[i][j];
+            }
+        }
+        ans
+    }
     }
 fn main() {
     let binding = vec![0, 1, 1, 1, 1, 0, 0, 0, 1, 1];
@@ -379,5 +392,12 @@ mod test {
             Solution::survived_robots_healths(positions, healths, directions),
             expected
         );
+    }
+    #[rstest]
+    #[case(vec![3,8] , vec![4,7] , vec![vec![3,0],vec![1,7]])]
+    #[case(vec![5,7,10] , vec![8,6,8] , vec![vec![5,0,0],vec![3,4,0],vec![0,2,8]])]
+
+    fn test_restore_matrix(#[case] row_sum: Vec<i32> , #[case] col_sum : Vec<i32> , #[case] expected: Vec<Vec<i32>>){
+        assert_eq!(Solution::restore_matrix(row_sum, col_sum) , expected);
     }
 }
