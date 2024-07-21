@@ -342,17 +342,36 @@ impl Solution {
     pub fn restore_matrix(mut row_sum: Vec<i32>, mut col_sum: Vec<i32>) -> Vec<Vec<i32>> {
         let n = row_sum.len();
         let m = col_sum.len();
-        let mut ans : Vec<Vec<i32>> = vec![vec![0;m];n];
-        for i in 0..n{
-            for j in 0..m{
-                ans[i][j] = min(row_sum[i] , col_sum[j]);
+        let mut ans: Vec<Vec<i32>> = vec![vec![0; m]; n];
+        for i in 0..n {
+            for j in 0..m {
+                ans[i][j] = min(row_sum[i], col_sum[j]);
                 row_sum[i] -= ans[i][j];
                 col_sum[j] -= ans[i][j];
             }
         }
         ans
     }
+    pub fn max_operations(s: String) -> i32 {
+        let mut ans: i32 = 0;
+        let mut positions: Vec<usize> = vec![];
+        let chars = s.chars().collect::<Vec<char>>();
+        for i in 0..s.len() {
+            if chars[i] == '1' {
+                positions.push(i);
+            }
+        }
+        for i in 1..positions.len() {
+            if positions[i] - positions[i - 1] > 1 {
+                ans += i as i32;
+            }
+        }
+        if chars[chars.len() - 1] == '0' {
+            ans += positions.len() as i32;
+        }
+        ans
     }
+}
 fn main() {
     let binding = vec![0, 1, 1, 1, 1, 0, 0, 0, 1, 1];
     println!("{:?} -> {:?}", binding, folder_vector(binding.clone()))
@@ -397,7 +416,19 @@ mod test {
     #[case(vec![3,8] , vec![4,7] , vec![vec![3,0],vec![1,7]])]
     #[case(vec![5,7,10] , vec![8,6,8] , vec![vec![5,0,0],vec![3,4,0],vec![0,2,8]])]
 
-    fn test_restore_matrix(#[case] row_sum: Vec<i32> , #[case] col_sum : Vec<i32> , #[case] expected: Vec<Vec<i32>>){
-        assert_eq!(Solution::restore_matrix(row_sum, col_sum) , expected);
+    fn test_restore_matrix(
+        #[case] row_sum: Vec<i32>,
+        #[case] col_sum: Vec<i32>,
+        #[case] expected: Vec<Vec<i32>>,
+    ) {
+        assert_eq!(Solution::restore_matrix(row_sum, col_sum), expected);
+    }
+    #[rstest]
+    #[case("00111", 0)]
+    #[case("1001101", 4)]
+    #[case("10101010", 10)]
+    #[case("1010101010001000011101010110", 64)]
+    fn test_max_operations(#[case] s: String, #[case] expected: i32) {
+        assert_eq!(Solution::max_operations(s), expected);
     }
 }
