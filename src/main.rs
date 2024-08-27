@@ -1,7 +1,7 @@
 struct Solution;
 use rstest::rstest;
 use std::cmp::{max, min, Ordering};
-use std::collections::{BTreeMap, HashMap};
+use std::collections::{BTreeMap, BinaryHeap, HashMap};
 
 use std::i32::{MAX, MIN};
 use std::vec;
@@ -371,6 +371,65 @@ impl Solution {
         }
         ans
     }
+
+    pub fn bfs(start: i32, end: i32, n: &i32, adj: Vec<Vec<Node>>) -> f64 {
+        let mut probability = vec![0.0; *n as usize];
+        probability[start as usize] = 1.0;
+        let mut priority_queue: BinaryHeap<Node> = BinaryHeap::new();
+        priority_queue.push(Node {
+            node: start,
+            prob: 1.0,
+        });
+        while !priority_queue.is_empty() {
+            let current = priority_queue.pop().unwrap();
+            for j in adj[current.node as usize].iter() {
+                if probability[j.node as usize] < current.prob * j.prob {
+                    probability[j.node as usize] = current.prob * j.prob;
+                    priority_queue.push(Node {
+                        node: j.node,
+                        prob: probability[j.node as usize],
+                    });
+                }
+            }
+        }
+        return probability[end as usize];
+    }
+    pub fn max_probability(
+        n: i32,
+        edges: Vec<Vec<i32>>,
+        succ_prob: Vec<f64>,
+        start_node: i32,
+        end_node: i32,
+    ) -> f64 {
+        let mut adj: Vec<Vec<Node>> = vec![Default::default(); n as usize];
+        for i in 0..edges.len() {
+            adj[edges[i][0] as usize].push(Node {
+                node: edges[i][1],
+                prob: succ_prob[i],
+            });
+            adj[edges[i][1] as usize].push(Node {
+                node: edges[i][0],
+                prob: succ_prob[i],
+            });
+        }
+        Solution::bfs(start_node, end_node, &n, adj)
+    }
+}
+#[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
+pub struct Node {
+    node: i32,
+    prob: f64,
+}
+impl Default for Node {
+    fn default() -> Self {
+        Self { node: 0, prob: 0.0 }
+    }
+}
+impl Eq for Node {}
+impl Ord for Node {
+    fn cmp(&self, other: &Self) -> Ordering {
+        other.prob.partial_cmp(&self.prob).unwrap()
+    }
 }
 fn main() {
     let binding = vec![0, 1, 1, 1, 1, 0, 0, 0, 1, 1];
@@ -430,5 +489,23 @@ mod test {
     #[case("1010101010001000011101010110", 64)]
     fn test_max_operations(#[case] s: String, #[case] expected: i32) {
         assert_eq!(Solution::max_operations(s), expected);
+    }
+    #[rstest]
+    #[case(3,
+        vec![vec![0,1],vec![1,2],vec![0,2]],
+        vec![0.5,0.5,0.2],
+        0,
+        2)]
+    fn test_maximum_probability(
+        #[case] n: i32,
+        #[case] edges: Vec<Vec<i32>>,
+        #[case] succ_prob: Vec<f64>,
+        #[case] start_node: i32,
+        #[case] end_node: i32,
+    ) {
+        assert_eq!(
+            Solution::max_probability(n, edges, succ_prob, start_node, end_node),
+            0.25
+        );
     }
 }
