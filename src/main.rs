@@ -1,14 +1,13 @@
 struct Solution;
-use rstest::rstest;
 use std::cmp::{max, min, Ordering};
 use std::collections::{BTreeMap, BinaryHeap, HashMap};
-
 use std::i32::{MAX, MIN};
 use std::vec;
 pub struct CallData {
     id: i32,
     timestamp: i32,
 }
+#[allow(dead_code)]
 impl Solution {
     pub fn min_processing_time(mut processor_time: Vec<i32>, mut tasks: Vec<i32>) -> i32 {
         processor_time.sort();
@@ -90,16 +89,6 @@ impl Solution {
             result.push(if first == second { first } else { second });
         }
         result
-    }
-    pub fn min_operations(nums: Vec<i32>) -> i32 {
-        if nums.len() < 2 {
-            return if nums[0] == 1 { 0 } else { 1 };
-        }
-        let mut ans: i32 = 0;
-        let folded: Vec<i32> = Solution::folder_vector(nums);
-        ans = folded.iter().fold(0, |acc, x| acc + (x == &0) as i32) * 2;
-        ans -= (*folded.iter().last().unwrap() == 0) as i32;
-        ans
     }
     pub fn get_first_last_from_map(window: BTreeMap<i32, i32>) -> (i32, i32) {
         let l = window.last_key_value().unwrap();
@@ -414,6 +403,36 @@ impl Solution {
         }
         Solution::bfs(start_node, end_node, &n, adj)
     }
+    pub fn sort_strip_number(num: i32) -> Vec<char> {
+        num.to_string().chars().collect()
+    }
+    pub fn swap_and_check(number1: i32, number2: i32) -> bool {
+        let mut number1 = Solution::sort_strip_number(number1);
+        for i in 0..number1.len() {
+            for j in (i + 1)..number1.len() {
+                number1.swap(i, j);
+                if number1.iter().collect::<String>().parse::<i32>().unwrap() == number2 {
+                    return true;
+                }
+                number1.swap(i, j);
+            }
+        }
+        false
+    }
+    pub fn count_pairs(nums: Vec<i32>) -> i32 {
+        let mut ans = 0;
+        for i in 0..nums.len() {
+            for j in (i + 1)..nums.len() {
+                if nums[i] == nums[j]
+                    || Solution::swap_and_check(nums[i], nums[j])
+                    || Solution::swap_and_check(nums[j], nums[i])
+                {
+                    ans += 1;
+                }
+            }
+        }
+        ans
+    }
 }
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
 pub struct Node {
@@ -432,9 +451,9 @@ impl Ord for Node {
     }
 }
 fn main() {
-    let binding = vec![0, 1, 1, 1, 1, 0, 0, 0, 1, 1];
-    println!("{:?} -> {:?}", binding, folder_vector(binding.clone()))
+    println!("Hello, world!");
 }
+#[allow(dead_code)]
 fn folder_vector(input: Vec<i32>) -> Vec<i32> {
     let mut result: Vec<_> = input
         .windows(2)
@@ -449,6 +468,7 @@ fn folder_vector(input: Vec<i32>) -> Vec<i32> {
 #[cfg(test)]
 mod test {
     use super::*;
+    use rstest::*;
     #[rstest]
     #[case(vec![0, 1, 1, 1, 1, 0, 0, 0, 1] , vec![0, 1, 0, 1])]
     #[case(vec![0, 1, 1, 1, 1, 0, 0, 0, 1, 1] , vec![0, 1, 0, 1])]
@@ -507,5 +527,12 @@ mod test {
             Solution::max_probability(n, edges, succ_prob, start_node, end_node),
             0.25
         );
+    }
+    #[rstest]
+    #[case(vec![123,231] , 0)]
+    #[case(vec![1,1,1,1,1] , 10)]
+    #[case(vec![3,12,30,17,21] , 2)]
+    fn test_count_pairs(#[case] nums: Vec<i32>, #[case] expected: i32) {
+        assert_eq!(Solution::count_pairs(nums), expected);
     }
 }
