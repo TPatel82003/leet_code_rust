@@ -5,7 +5,7 @@ pipeline {
         }
     }
      environment {
-        GITHUB_CREDENTIALS_ID = 'github-token'  // ID of the GitHub token created in Step 2
+        GITHUB_CREDENTIALS_ID = 'GH Access Token'  // ID of the GitHub token created in Step 2
         REPO = 'TPatel82003/leet_code_rust' // GitHub repo in "org/repo" format
     }
     stages {
