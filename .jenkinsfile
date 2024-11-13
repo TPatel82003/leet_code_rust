@@ -7,7 +7,7 @@ pipeline {
      environment {
         GITHUB_CREDENTIALS_ID = 'GH Access Token'  // ID of the GitHub token created in Step 2
         REPO = 'TPatel82003/leet_code_rust' // GitHub repo in "org/repo" format
-    }
+     }
     stages {
         stage('Check & Configure Setup') {
             steps {
@@ -23,14 +23,14 @@ pipeline {
         }
         stage('Build') {
             steps {
+                githubCheck("Building", "Building Project")
                 sh 'cargo build'
             }
         }
         stage('Unit Test') {
             steps {
-                withChecks('Unit Test') {
-                    sh 'cargo llvm-cov --html'
-                }
+                githubCheck("Unit Test")
+                sh 'cargo llvm-cov --html'
             }
         }
         stage('Archive Coverage Report') {
@@ -39,4 +39,22 @@ pipeline {
             }
         }
     }
+     post {
+        success {
+            githubCheckStatus("Success")
+        }
+        failure {
+            githubCheckStatus("Failure")
+        }
+     }
+}def githubCheck(name, details) {
+    githubCheckStatus('IN_PROGRESS', name, details)
+}
+
+def githubCheckStatus(status, name = 'Jenkins CI', details = '') {
+    githubNotify credentialsId: env.GITHUB_CREDENTIALS_ID,
+                 repo: env.REPO,
+                 context: name,
+                 status: status,
+                 description: details
 }
