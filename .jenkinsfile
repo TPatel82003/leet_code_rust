@@ -1,0 +1,38 @@
+pipeline {
+    agent {
+        docker {
+            image 'rust:latest'
+        }
+    }
+    stages {
+        stage('Check & Configure Setup') {
+            steps {
+                sh 'cargo install cargo-llvm-cov'
+                sh 'rustc --version'
+                sh 'cargo --version'
+            }
+        }
+        stage('Checkout Branch') {
+            steps {
+                checkout scmGit(branches: [[name: '*/master']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/TPatel82003/leet_code_rust']])
+            }
+        }
+        stage('Build') {
+            steps {
+                sh 'cargo build'
+            }
+        }
+        stage('Unit Test') {
+            steps {
+                withChecks('Unit Test') {
+                    sh 'cargo llvm-cov --html'
+                }
+            }
+        }
+        stage('Archive Coverage Report') {
+            steps {
+                archiveArtifacts artifacts: 'target/llvm-cov/html/**' , allowEmptyArchive: true
+            }
+        }
+    }
+}
