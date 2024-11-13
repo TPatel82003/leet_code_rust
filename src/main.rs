@@ -450,6 +450,7 @@ impl Ord for Node {
         other.prob.partial_cmp(&self.prob).unwrap()
     }
 }
+// TODO Need to improve coverage
 fn main() {
     println!("Hello, world!");
 }
