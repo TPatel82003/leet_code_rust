@@ -4,10 +4,10 @@ pipeline {
             image 'rust:latest'
         }
     }
-     environment {
+    environment {
         GITHUB_CREDENTIALS_ID = 'GH Access Token'  // ID of the GitHub token created in Step 2
         REPO = 'TPatel82003/leet_code_rust' // GitHub repo in "org/repo" format
-     }
+    }
     stages {
         stage('Check & Configure Setup') {
             steps {
@@ -23,13 +23,13 @@ pipeline {
         }
         stage('Build') {
             steps {
-                githubCheck("Building", "Building Project")
+                githubCheck('Building', 'Building Project')
                 sh 'cargo build'
             }
         }
         stage('Unit Test') {
             steps {
-                githubCheck("Unit Test")
+                githubCheck('Unit Test')
                 sh 'cargo llvm-cov --html'
             }
         }
@@ -39,15 +39,17 @@ pipeline {
             }
         }
     }
-     post {
+    post {
         success {
-            githubCheckStatus("Success")
+            githubCheckStatus('Success')
         }
         failure {
-            githubCheckStatus("Failure")
+            githubCheckStatus('Failure')
         }
-     }
-}def githubCheck(name, details) {
+    }
+}
+
+def githubCheck(name, details) {
     githubCheckStatus('IN_PROGRESS', name, details)
 }
 
